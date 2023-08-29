@@ -1,0 +1,9 @@
+version: '3.3'
+services:
+  fiduswriter:
+    volumes:
+      - ./volumes/data:/data'
+    ports:
+      - '8000:8000'
+    container_name: fiduswriter
+    image: 'fiduswriter/fiduswriter:latest'

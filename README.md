@@ -1,14 +1,16 @@
 # docker-fiduswriter
 
-[![automated](https://img.shields.io/docker/automated/moritzf/fiduswriter.svg)](https://hub.docker.com/r/moritzf/fiduswriter/)
-[![build](https://img.shields.io/docker/build/moritzf/fiduswriter.svg)](https://hub.docker.com/r/moritzf/fiduswriter/)
-[![pulls](https://img.shields.io/docker/pulls/moritzf/fiduswriter.svg)](https://hub.docker.com/r/moritzf/fiduswriter/)
+![GitHub tag (with filter)](https://img.shields.io/github/v/tag/fiduswriter/fiduswriter)
+[![pulls](https://img.shields.io/docker/pulls/fiduswriter/fiduswriter.svg)](https://hub.docker.com/r/fiduswriter/fiduswriter/)
 
 [FidusWriter](https://github.com/fiduswriter/fiduswriter) is a collaborative online writing tool. This is a docker image that was built following the official installation manual for Ubuntu as closely as possible.
 
+| This project is based in the wonderful work done by Moritz in |
+|---|
+
 ## Builds and Tags on DockerHub
 
-Builds on Docker are tagged following this pattern and are triggered automatically through changes in [this project (moritzfl/docker-fiduswriter)](https://github.com/moritzfl/docker-fiduswriter) ("develop" ist triggered by commits, the others through releases):
+Builds on Docker are tagged following this pattern and are triggered automatically through changes in [this project (fiduswriter/docker-fiduswriter)](https://github.com/fiduswriter/docker-fiduswriter) ("develop" ist triggered by commits, the others through releases):
 
 - __latest__: latest release or prerelease of fiduswriter (most current "release-\[VERSION\]" or "prerelease-\[VERSION\]")
 
@@ -34,7 +36,7 @@ $ sudo chown -R 999:999 /host/directory
 
 To get fiduswriter running use (you can do without -v /host/directory:/data but that means no persistent data): 
 ~~~~
-$ docker run -d -v /host/directory:/data -p 8000:8000 --name moritzf-fiduswriter moritzf/fiduswriter:latest
+$ docker run -d -v /host/directory:/data -p 8000:8000 --name fiduswriter-fiduswriter fiduswriter/fiduswriter:latest
 ~~~~
 (Replace "/host/directory" with a valid directory on your host machine)
 
