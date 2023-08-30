@@ -5,8 +5,8 @@
 
 [FidusWriter](https://github.com/fiduswriter/fiduswriter) is a collaborative online writing tool. This is a docker image that was built following the official installation manual for Ubuntu as closely as possible.
 
-| This project is the official Fidus Writer images and is the continuation of the great work done by Moritz at [docker-fiduswriter](https://github.com/moritzfl/docker-fiduswriter) |
-|---|
+| This project is the official Fidus Writer images | and is the continuation of the great work done by Moritz at https://github.com/moritzfl/docker-fiduswriter). <br /> Check his repository if you need older images. |
+|:---|
 
 ## Builds and Tags on DockerHub
 
