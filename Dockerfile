@@ -59,6 +59,9 @@ RUN pip3 install --upgrade pip wheel
 # Working directories should be absolute.
 # https://docs.docker.com/engine/userguide/eng-image/dockerfile_best-practices/#workdir
 WORKDIR /fiduswriter
+
+# Data folder must exist. It could be mapped if you like to make it persistent.
+RUN mkdir /data
 RUN chmod -R 777 /fiduswriter /data
 
 RUN python3 -m venv venv
