@@ -36,7 +36,7 @@ sudo chown -R 999:999 volumes
 docker compose up -d
 
 # Create a superuser
-docker compose exec fiduswriter fiduswriter createsuperuser
+docker compose exec fiduswriter venv/bin/fiduswriter createsuperuser
 
 # Check logs
 docker compose logs -f
@@ -91,7 +91,7 @@ One last adaptation is needed after the initial run, since else the registration
 
 Once started, to create a super user account you only need to run:
 ```
-$ docker compose exec fiduswriter fiduswriter createsuperuser
+$ docker compose exec fiduswriter venv/bin/fiduswriter createsuperuser
 ```
 
 and then login to /admin to change the site configuration.
