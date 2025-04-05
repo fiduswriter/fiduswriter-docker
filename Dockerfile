@@ -1,7 +1,7 @@
 # vim: set ts=4 sw=4 sts=0 sta et :
-FROM ubuntu:20.04
+FROM ubuntu:24.04
 EXPOSE 8000:8000
-ENV VERSION 3.11.9
+ENV VERSION 4.0.6
 
 # Executing group, with fixed group id
 ENV EXECUTING_GROUP fiduswriter
@@ -26,13 +26,10 @@ RUN groupadd \
         --create-home \
          --no-log-init \
         --uid ${EXECUTING_USER_ID} \
-        --gid ${EXECUTING_USER} \
+        --gid ${EXECUTING_GROUP} \
         ${EXECUTING_USER}
 
-
 # Chain apt-get update, apt-get install and the removal of the lists.
-# This is one of the best practices of Docker, see
-# https://docs.docker.com/engine/userguide/eng-image/dockerfile_best-practices/#apt-get
 RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install -y \
         build-essential \
@@ -47,28 +44,34 @@ RUN apt-get update \
         wget \
         zlib1g-dev \
         curl \
+        rsync \
+        libmagic-dev \
     && rm -rf /var/lib/apt/lists/*
 
-RUN curl -sL https://deb.nodesource.com/setup_18.x | bash
+RUN curl -sL https://deb.nodesource.com/setup_22.x | bash
 RUN apt-get update && apt-get install -y nodejs && rm -rf /var/lib/apt/lists/*
 
-RUN pip3 install --upgrade setuptools
-RUN pip3 install fiduswriter==${VERSION}
-RUN pip3 install --upgrade pip wheel
-
 # Working directories should be absolute.
-# https://docs.docker.com/engine/userguide/eng-image/dockerfile_best-practices/#workdir
 WORKDIR /fiduswriter
 
 # Data folder must exist. It could be mapped if you like to make it persistent.
-RUN mkdir /data
-RUN chmod -R 777 /fiduswriter /data
+RUN mkdir -p /data/media
+RUN chown -R ${EXECUTING_USER}:${EXECUTING_GROUP} /data
+RUN chmod -R 755 /data
 
+# Create virtual environment with the right permissions
 RUN python3 -m venv venv
-RUN /bin/bash -c "source /fiduswriter/venv/bin/activate"
+RUN chown -R ${EXECUTING_USER}:${EXECUTING_GROUP} /fiduswriter
+
+# Install packages
+RUN venv/bin/pip install --upgrade setuptools
+RUN venv/bin/pip install fiduswriter[books,citation-api-import,languagetool,ojs,pandoc,gitrepo-export,phplist,payment-paddle,website]==${VERSION}
+RUN venv/bin/pip install --upgrade pip wheel
 
 COPY start-fiduswriter.sh /etc/start-fiduswriter.sh
+RUN chmod +x /etc/start-fiduswriter.sh
 
-# Always use the array form for exec, see
-# https://docs.docker.com/engine/userguide/eng-image/dockerfile_best-practices/#cmd
+# Make sure the data directory is writable by the Fidus Writer user
+USER ${EXECUTING_USER}
+
 CMD ["/bin/sh", "/etc/start-fiduswriter.sh"]

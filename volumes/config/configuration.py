@@ -17,14 +17,14 @@ DEBUG = True
 # SOURCE_MAPS = 'source-map' # slow - line and column number
 SOURCE_MAPS = False
 
-PROJECT_PATH = os.environ.get("PROJECT_PATH")
+PROJECT_PATH = os.environ.get("PROJECT_PATH", "/fiduswriter")
 # SRC_PATH is the root path of the FW sources.
-SRC_PATH = os.environ.get("SRC_PATH")
+SRC_PATH = os.environ.get("SRC_PATH", "/fiduswriter")
 
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": os.path.join(PROJECT_PATH, "fiduswriter.sql"),
+        "NAME": os.path.join("/data", "fiduswriter.sql"),
         "CONN_MAX_AGE": 15,
     }
 }
@@ -67,38 +67,17 @@ IS_FREE = True
 
 MANAGERS = ADMINS
 
-# DATABASES = {
-#    'default': {
-# Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-#        'ENGINE': 'django.db.backends.',
-# Or path to database file if using sqlite3.
-#        'NAME': '',
-# Not used with sqlite3.
-#        'USER': '',
-# Not used with sqlite3.
-#        'PASSWORD': '',
-# Set to empty string for localhost. Not used with sqlite3.
-#        'HOST': '',
-# Set to empty string for default. Not used with sqlite3.
-#        'PORT': '',
-# The max time in seconds a database connection should wait for a subsequent
-# request.
-#        'CONN_MAX_AGE': 15
-#    }
-# }
-
-# Send emails using an SMTP server
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST = 'localhost'
-# EMAIL_HOST_USER = ''
-# EMAIL_HOST_PASSWORD = ''
-# EMAIL_PORT = 25
-# EMAIL_SUBJECT_PREFIX = '[Fidus Writer]'
-# EMAIL_USE_TLS = False
-# DEFAULT_FROM_EMAIL = 'mail@email.com' # For messages to end users
-# SERVER_EMAIL = 'mail@email.com' # For messages to server administrators
-
 INSTALLED_APPS = [
+    "book",
+    "citation_api_import",
+    "pandoc",
+    # "pandoc_on_server"
+    # "gitrepo_export",
+    # "languagetool",
+    # "ojs",
+    # "phplist",
+    # "payment",
+    # "website"
     # If you want to enable one or several of the social network login options
     # below, make sure you add the authorization keys at:
     # http://SERVER.COM/admin/socialaccount/socialapp/
@@ -116,21 +95,24 @@ INSTALLED_APPS = [
 # A list of allowed hostnames of this Fidus Writer installation
 ALLOWED_HOSTS = [
     "localhost",
+    "127.0.0.1",
 ]
 
-# Disable service worker (default is True)
-# USE_SERVICE_WORKER = False
+PORTS = [8000]
 
-# The maximum size of user uploaded images in bytes. If you use NGINX, note
-# that also it needs to support at least this size.
-MEDIA_MAX_SIZE = False
+# Enable/disable the service worker (default is True)
+USE_SERVICE_WORKER = True
 
-# Create URLs in https (required for social media login)
-# ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'https'
-
-# Which domains served over http to allow post requests from. Should be the same as ALLOWED_HOSTS
-# But including https://, for example "https://www.domain.com".
-# CSRF_TRUSTED_ORIGINS = []
+# The maximum size of user uploaded images in bytes.
+MEDIA_MAX_SIZE = 10 * 1024 * 1024  # 10 MB
 
 # Don't share the SECRET_KEY with anyone.
 SECRET_KEY = '5vx9556(@55hv4z(4o)-urkb8a1cq+cg86a$49g%vsm2pt+n+z'
+
+# Media files handling
+MEDIA_ROOT = os.path.join('/data', 'media')
+MEDIA_URL = '/media/'
+
+# Static files handling
+STATIC_ROOT = os.path.join(PROJECT_PATH, 'static')
+STATIC_URL = '/static/'
