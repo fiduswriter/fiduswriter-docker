@@ -100,6 +100,10 @@ ALLOWED_HOSTS = [
 
 PORTS = [8000]
 
+# Allow the server to listen to all network interfaces (0.0.0.0) instead of just localhost
+# SECURITY WARNING: Setting this to True in production environments could expose your server
+LISTEN_TO_ALL_INTERFACES = False
+
 # Enable/disable the service worker (default is True)
 USE_SERVICE_WORKER = True
 
@@ -114,5 +118,5 @@ MEDIA_ROOT = os.path.join('/data', 'media')
 MEDIA_URL = '/media/'
 
 # Static files handling
-STATIC_ROOT = os.path.join(PROJECT_PATH, 'static')
+STATIC_ROOT = os.path.join(PROJECT_PATH, 'static/')
 STATIC_URL = '/static/'
