@@ -71,7 +71,7 @@ INSTALLED_APPS = [
     "book",
     "citation_api_import",
     "pandoc",
-    # "pandoc_on_server"
+    # "pandoc_on_server",
     # "gitrepo_export",
     # "languagetool",
     # "ojs",
