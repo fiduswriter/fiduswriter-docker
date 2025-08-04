@@ -32,6 +32,9 @@ cd fiduswriter-docker
 sudo mkdir -p volumes/data
 sudo chown -R 999:999 volumes
 
+# Copy configuration file (edit file as needed)
+cp volumes/config/configuration.py volumes/data/
+
 # Start the container
 docker compose up -d
 
@@ -44,9 +47,54 @@ docker compose logs -f
 
 Visit http://localhost:8000 to access Fidus Writer.
 
-### Understanding how to use this image
+## Configuration
 
-In order to allow __access__ from any __URL other than localhost__ you will need to modify the entries for ALLOWED_HOSTS in the file /data/configuration.py.
+The configuration file is located at `volumes/data/configuration.py`. You can modify this file to customize your Fidus Writer instance.
+
+Important settings to consider:
+- `ALLOWED_HOSTS`: Add your domain name here
+- `DEBUG`: Set to False in production
+- `CONTACT_EMAIL`: Set your contact email
+- `DATABASES`: Configure your database settings if you want to use a different database backend
+
+## Persistence
+
+Data is stored in the `./volumes/data` directory. This includes:
+- SQLite database
+- User uploads
+- Configuration
+
+Make sure to back up this directory regularly.
+
+## Running Behind a Reverse Proxy
+
+When running Fidus Writer behind a reverse proxy like Nginx or Apache, make sure to:
+1. Forward the correct headers (X-Forwarded-For, X-Forwarded-Proto, etc.)
+2. Add your domain to the `ALLOWED_HOSTS` in configuration.py
+3. Set `CSRF_TRUSTED_ORIGINS` if using HTTPS
+
+## Upgrading
+
+1. **Fecth the newest version from the git repository**:
+   ```bash
+   git pull
+   ```
+
+2. **Rebuild the Docker image**:
+   ```bash
+   docker compose down
+   docker compose build --no-cache
+   docker compose up -d
+   ```
+
+3. **Run migrations if needed**:
+   ```bash
+   docker compose exec fiduswriter venv/bin/fiduswriter migrate
+   ```
+
+## Understanding how this package works
+
+In order to allow __access__ from any __URL other than localhost__ you will need to modify the entries for ALLOWED_HOSTS in the file `volumes/data/configuration.py`.
 This file will let you define the __domainname__ where your fiduswriter is running, your admin's mail and may other important settings.
 To keep this file persistent in an easy way, we recommend mapping the data directory to a directory on your host machine for data persistence.
 
@@ -71,7 +119,7 @@ If needed, you can create an administrative account for fiduswriter by attaching
 $ python3 manage.py createsuperuser
 ~~~~
 
-Notice that until you define a mail-server (also through /data/configuration.py), you won't be able to complete user's mail validation, but the mails and contained __links required for user registration__ will be printed to the __outputstream of the container__.
+Notice that until you define a mail-server (also through `volumes/data/configuration.py`), you won't be able to complete user's mail validation, but the mails and contained __links required for user registration__ will be printed to the __outputstream of the container__.
 
 
 #### Making things easier with  Docker Compose
@@ -103,39 +151,6 @@ This application state needs to be adapted in /admin/sites/site/, which is only 
 Change the domain name to from where your instance can be reached, and the display name to indicate how you want it to be called. Then your Fidus Writer deployment should be complete.
 
 Please leave comments in the issues if you have any remarks.
-
-## Configuration
-
-The configuration file is located at `volumes/data/configuration.py`. You can modify this file to customize your Fidus Writer instance.
-
-Important settings to consider:
-- `ALLOWED_HOSTS`: Add your domain name here
-- `DEBUG`: Set to False in production
-- `CONTACT_EMAIL`: Set your contact email
-- `DATABASES`: Configure your database settings if you want to use a different database backend
-
-## Persistence
-
-Data is stored in the `./volumes/data` directory. This includes:
-- SQLite database
-- User uploads
-- Configuration
-
-Make sure to back up this directory regularly.
-
-## Running Behind a Reverse Proxy
-
-When running Fidus Writer behind a reverse proxy like Nginx or Apache, make sure to:
-1. Forward the correct headers (X-Forwarded-For, X-Forwarded-Proto, etc.)
-2. Add your domain to the `ALLOWED_HOSTS` in configuration.py
-3. Set `CSRF_TRUSTED_ORIGINS` if using HTTPS
-
-## Upgrading
-
-To upgrade to a newer version of Fidus Writer:
-
-1. Update the `VERSION` in the Dockerfile
-2. Rebuild the container: `docker compose up -d --build`
 
 ## Troubleshooting
 
