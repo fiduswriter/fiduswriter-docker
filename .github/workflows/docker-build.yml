@@ -1,0 +1,268 @@
+name: Build and Publish Docker Images
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*.*.*'
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      fiduswriter_version:
+        description: 'Fiduswriter version to build (e.g., 4.0.17)'
+        required: false
+        default: '4.0.17'
+  schedule:
+    # Check for new 4.0.x releases weekly (Sunday at 2 AM UTC)
+    - cron: '0 2 * * 0'
+
+jobs:
+  check-version:
+    name: Check Latest Fiduswriter Version
+    runs-on: ubuntu-latest
+    outputs:
+      latest_version: ${{ steps.get-version.outputs.version }}
+      should_build: ${{ steps.compare.outputs.should_build }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Get latest 4.0.x version from PyPI
+        id: get-version
+        run: |
+          # Get latest version in 4.0.x series from PyPI
+          LATEST=$(python3 << 'EOF'
+          import json
+          import urllib.request
+          import re
+
+          url = "https://pypi.org/pypi/fiduswriter/json"
+          with urllib.request.urlopen(url) as response:
+              data = json.loads(response.read())
+              versions = list(data['releases'].keys())
+              # Filter for 4.0.x versions
+              pattern = re.compile(r'^4\.0\.\d+$')
+              v40_versions = [v for v in versions if pattern.match(v)]
+              # Sort by version number
+              v40_versions.sort(key=lambda s: [int(u) for u in s.split('.')])
+              if v40_versions:
+                  print(v40_versions[-1])
+              else:
+                  print("4.0.17")
+          EOF
+          )
+          echo "version=$LATEST" >> $GITHUB_OUTPUT
+          echo "Latest 4.0.x version: $LATEST"
+
+      - name: Compare with current version
+        id: compare
+        run: |
+          CURRENT_VERSION=$(grep -oP 'ARG FIDUSWRITER_VERSION=\K[0-9.]+' Dockerfile || echo "4.0.16")
+          LATEST_VERSION="${{ steps.get-version.outputs.version }}"
+          echo "Current version in Dockerfile: $CURRENT_VERSION"
+          echo "Latest version on PyPI: $LATEST_VERSION"
+          
+          if [ "$CURRENT_VERSION" != "$LATEST_VERSION" ] || [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ "${{ github.event_name }}" = "push" ]; then
+            echo "should_build=true" >> $GITHUB_OUTPUT
+            echo "Build should proceed"
+          else
+            echo "should_build=false" >> $GITHUB_OUTPUT
+            echo "No new version detected, skipping build"
+          fi
+
+  build-and-push:
+    name: Build and Push Docker Images
+    runs-on: ubuntu-latest
+    needs: check-version
+    if: needs.check-version.outputs.should_build == 'true'
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Log in to GitHub Container Registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Determine version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ github.event.inputs.fiduswriter_version }}" ]; then
+            VERSION="${{ github.event.inputs.fiduswriter_version }}"
+          else
+            VERSION="${{ needs.check-version.outputs.latest_version }}"
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Building version: $VERSION"
+          
+          # Extract version components
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
+          echo "major=$MAJOR" >> $GITHUB_OUTPUT
+          echo "minor=$MINOR" >> $GITHUB_OUTPUT
+          echo "patch=$PATCH" >> $GITHUB_OUTPUT
+
+      - name: Update Dockerfile with latest version
+        if: github.event_name != 'pull_request'
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          sed -i "s/ARG FIDUSWRITER_VERSION=.*/ARG FIDUSWRITER_VERSION=$VERSION/" Dockerfile
+          
+          if git diff --quiet Dockerfile; then
+            echo "No changes to Dockerfile"
+          else
+            git config --local user.email "github-actions[bot]@users.noreply.github.com"
+            git config --local user.name "github-actions[bot]"
+            git add Dockerfile
+            git commit -m "chore: Update Fiduswriter to version $VERSION"
+            git push || echo "Push failed, may be behind main"
+          fi
+
+      - name: Extract metadata for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            fiduswriter/fiduswriter
+            ghcr.io/${{ github.repository }}
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=raw,value=${{ steps.version.outputs.version }}
+            type=raw,value=${{ steps.version.outputs.major }}.${{ steps.version.outputs.minor }}
+            type=raw,value=${{ steps.version.outputs.major }}
+            type=ref,event=pr
+            type=sha,prefix={{branch}}-
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            FIDUSWRITER_VERSION=${{ steps.version.outputs.version }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Update Docker Hub description
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        uses: peter-evans/dockerhub-description@v4
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          repository: fiduswriter/fiduswriter
+          short-description: "Official Docker image for Fiduswriter - A collaborative online writing tool"
+          readme-filepath: ./README.md
+
+      - name: Create GitHub Release
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: Fiduswriter ${{ steps.version.outputs.version }}
+          body: |
+            ## Fiduswriter Docker Image v${{ steps.version.outputs.version }}
+            
+            This release contains the Docker image for Fiduswriter version ${{ steps.version.outputs.version }}.
+            
+            ### Docker Images
+            
+            ```bash
+            docker pull fiduswriter/fiduswriter:${{ steps.version.outputs.version }}
+            docker pull fiduswriter/fiduswriter:${{ steps.version.outputs.major }}.${{ steps.version.outputs.minor }}
+            docker pull fiduswriter/fiduswriter:${{ steps.version.outputs.major }}
+            docker pull fiduswriter/fiduswriter:latest
+            ```
+            
+            ### What's Changed
+            - Updated Fiduswriter to version ${{ steps.version.outputs.version }}
+            - Built with Python 3.14.2
+            - Multi-architecture support (amd64, arm64)
+            
+            See [Fiduswriter Changelog](https://github.com/fiduswriter/fiduswriter/releases) for application changes.
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true
+
+  test-image:
+    name: Test Docker Image
+    runs-on: ubuntu-latest
+    needs: [check-version, build-and-push]
+    if: needs.check-version.outputs.should_build == 'true'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build test image
+        run: |
+          docker build --build-arg FIDUSWRITER_VERSION=${{ needs.check-version.outputs.latest_version }} -t fiduswriter-test .
+
+      - name: Run smoke tests
+        run: |
+          # Start container
+          docker run -d --name fiduswriter-test -p 8000:8000 fiduswriter-test
+          
+          # Wait for startup (increased timeout)
+          echo "Waiting for Fiduswriter to start..."
+          for i in {1..30}; do
+            if docker logs fiduswriter-test 2>&1 | grep -q "Starting development server"; then
+              echo "Fiduswriter started successfully"
+              break
+            fi
+            echo "Waiting... ($i/30)"
+            sleep 2
+          done
+          
+          # Show logs
+          echo "Container logs:"
+          docker logs fiduswriter-test
+          
+          # Check if container is still running
+          if ! docker ps | grep -q fiduswriter-test; then
+            echo "ERROR: Container stopped unexpectedly"
+            docker logs fiduswriter-test
+            exit 1
+          fi
+          
+          # Verify Python version
+          echo "Checking Python version..."
+          docker exec fiduswriter-test python3 --version
+          
+          # Verify Fiduswriter version
+          echo "Checking Fiduswriter version..."
+          docker exec fiduswriter-test /fiduswriter/venv/bin/pip show fiduswriter
+          
+          # Cleanup
+          docker stop fiduswriter-test
+          docker rm fiduswriter-test

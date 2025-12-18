@@ -1,7 +1,10 @@
 # vim: set ts=4 sw=4 sts=0 sta et :
 FROM ubuntu:24.04
-EXPOSE 8000:8000
-ENV VERSION 4.0.16
+EXPOSE 8000
+
+# Use build arg to allow overriding version
+ARG FIDUSWRITER_VERSION=4.0.17
+ENV VERSION ${FIDUSWRITER_VERSION}
 
 # Executing group, with fixed group id
 ENV EXECUTING_GROUP fiduswriter
@@ -46,10 +49,27 @@ RUN apt-get update \
         curl \
         rsync \
         libmagic-dev \
+        software-properties-common \
     && rm -rf /var/lib/apt/lists/*
 
-RUN curl -sL https://deb.nodesource.com/setup_22.x | bash
-RUN apt-get update && apt-get install -y nodejs && rm -rf /var/lib/apt/lists/*
+# Install Python 3.14.2 from deadsnakes PPA
+RUN add-apt-repository ppa:deadsnakes/ppa -y \
+    && apt-get update \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+        python3.14 \
+        python3.14-venv \
+        python3.14-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set Python 3.14 as the default python3
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.14 1 \
+    && update-alternatives --set python3 /usr/bin/python3.14
+
+# Install Node.js 22.x
+RUN curl -sL https://deb.nodesource.com/setup_22.x | bash \
+    && apt-get update \
+    && apt-get install -y nodejs \
+    && rm -rf /var/lib/apt/lists/*
 
 # Working directories should be absolute.
 WORKDIR /fiduswriter
@@ -64,9 +84,8 @@ RUN python3 -m venv venv
 RUN chown -R ${EXECUTING_USER}:${EXECUTING_GROUP} /fiduswriter
 
 # Install packages
-RUN venv/bin/pip install --upgrade setuptools
+RUN venv/bin/pip install --upgrade setuptools pip wheel
 RUN venv/bin/pip install fiduswriter[books,citation-api-import,languagetool,ojs,pandoc,gitrepo-export,phplist,payment-paddle,website]==${VERSION}
-RUN venv/bin/pip install --upgrade pip wheel
 
 COPY start-fiduswriter.sh /etc/start-fiduswriter.sh
 RUN chmod +x /etc/start-fiduswriter.sh

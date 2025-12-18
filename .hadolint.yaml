@@ -1,0 +1,38 @@
+---
+failure-threshold: error
+
+ignored:
+  # DL3008: Pin versions in apt-get install
+  # We intentionally don't pin apt package versions as they can vary by Ubuntu release
+  - DL3008
+  
+  # DL3009: Delete the apt-get lists after installing
+  # We handle this with rm -rf /var/lib/apt/lists/*
+  - DL3009
+  
+  # DL3015: Avoid additional packages by specifying --no-install-recommends
+  # Some packages need their recommended dependencies
+  - DL3015
+  
+  # DL3016: Pin versions in npm
+  # Node.js is installed from NodeSource and doesn't need explicit pinning
+  - DL3016
+  
+  # DL3049: Label info messages
+  # Labels are not critical for this use case
+  - DL3049
+  
+  # DL3059: Multiple consecutive RUN instructions
+  # We prefer readability over layer optimization in some cases
+  - DL3059
+  
+  # DL4006: Set SHELL option -o pipefail
+  # Using default shell behavior
+  - DL4006
+
+trustedRegistries:
+  - docker.io
+  - ghcr.io
+
+no-fail: false
+no-color: false

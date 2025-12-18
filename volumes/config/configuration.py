@@ -111,7 +111,7 @@ USE_SERVICE_WORKER = True
 MEDIA_MAX_SIZE = 10 * 1024 * 1024  # 10 MB
 
 # Don't share the SECRET_KEY with anyone.
-SECRET_KEY = '5vx9556(@55hv4z(4o)-urkb8a1cq+cg86a$49g%vsm2pt+n+z'
+SECRET_KEY = '5vx9556(@55hv4z(4o)-urkb8a1cq+cg86a$49g%vsm2pt+n+z' # pragma: allowlist secret
 
 # Media files handling
 MEDIA_ROOT = os.path.join('/data', 'media')

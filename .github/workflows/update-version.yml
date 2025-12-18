@@ -1,0 +1,123 @@
+name: Check for Fiduswriter Updates
+
+on:
+  schedule:
+    # Check daily at 3 AM UTC
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+
+jobs:
+  check-update:
+    name: Check for New Fiduswriter Version
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Get latest 4.0.x version from PyPI
+        id: get-version
+        run: |
+          # Get latest version in 4.0.x series from PyPI
+          LATEST=$(python3 << 'EOF'
+          import json
+          import urllib.request
+          import re
+
+          url = "https://pypi.org/pypi/fiduswriter/json"
+          with urllib.request.urlopen(url) as response:
+              data = json.loads(response.read())
+              versions = list(data['releases'].keys())
+              # Filter for 4.0.x versions
+              pattern = re.compile(r'^4\.0\.\d+$')
+              v40_versions = [v for v in versions if pattern.match(v)]
+              # Sort by version number
+              v40_versions.sort(key=lambda s: [int(u) for u in s.split('.')])
+              if v40_versions:
+                  print(v40_versions[-1])
+              else:
+                  print("4.0.17")
+          EOF
+          )
+          echo "latest=$LATEST" >> $GITHUB_OUTPUT
+          echo "Latest 4.0.x version: $LATEST"
+
+      - name: Get current version from Dockerfile
+        id: current-version
+        run: |
+          CURRENT=$(grep -oP 'ARG FIDUSWRITER_VERSION=\K[0-9.]+' Dockerfile || echo "4.0.17")
+          echo "current=$CURRENT" >> $GITHUB_OUTPUT
+          echo "Current version: $CURRENT"
+
+      - name: Compare versions
+        id: compare
+        run: |
+          CURRENT="${{ steps.current-version.outputs.current }}"
+          LATEST="${{ steps.get-version.outputs.latest }}"
+          
+          if [ "$CURRENT" != "$LATEST" ]; then
+            echo "needs_update=true" >> $GITHUB_OUTPUT
+            echo "New version available: $LATEST (current: $CURRENT)"
+          else
+            echo "needs_update=false" >> $GITHUB_OUTPUT
+            echo "Already at latest version: $CURRENT"
+          fi
+
+      - name: Update Dockerfile
+        if: steps.compare.outputs.needs_update == 'true'
+        run: |
+          LATEST="${{ steps.get-version.outputs.latest }}"
+          sed -i "s/ARG FIDUSWRITER_VERSION=.*/ARG FIDUSWRITER_VERSION=$LATEST/" Dockerfile
+          echo "Updated Dockerfile to version $LATEST"
+
+      - name: Create Pull Request
+        if: steps.compare.outputs.needs_update == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: |
+            chore: Update Fiduswriter to version ${{ steps.get-version.outputs.latest }}
+            
+            Automatically detected new Fiduswriter version on PyPI.
+          branch: update/fiduswriter-${{ steps.get-version.outputs.latest }}
+          delete-branch: true
+          title: 'chore: Update Fiduswriter to version ${{ steps.get-version.outputs.latest }}'
+          body: |
+            ## Automated Fiduswriter Version Update
+            
+            This PR updates Fiduswriter from version ${{ steps.current-version.outputs.current }} to ${{ steps.get-version.outputs.latest }}.
+            
+            ### Changes
+            - Updated `Dockerfile` to use Fiduswriter version ${{ steps.get-version.outputs.latest }}
+            
+            ### Release Notes
+            See the [Fiduswriter releases](https://github.com/fiduswriter/fiduswriter/releases) for details about what changed in this version.
+            
+            ### Checklist
+            - [ ] Review the Fiduswriter changelog
+            - [ ] Test the Docker image builds successfully
+            - [ ] Test the application starts correctly
+            - [ ] Verify no breaking changes affect the Docker setup
+            
+            ---
+            
+            🤖 This PR was created automatically by the version check workflow.
+          labels: |
+            automated
+            dependencies
+            update
+          assignees: ${{ github.repository_owner }}
+
+      - name: Notify if update found
+        if: steps.compare.outputs.needs_update == 'true'
+        run: |
+          echo "::notice::New Fiduswriter version ${{ steps.get-version.outputs.latest }} detected. PR created."
