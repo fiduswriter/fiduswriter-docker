@@ -63,7 +63,7 @@ jobs:
         run: |
           CURRENT="${{ steps.current-version.outputs.current }}"
           LATEST="${{ steps.get-version.outputs.latest }}"
-          
+
           if [ "$CURRENT" != "$LATEST" ]; then
             echo "needs_update=true" >> $GITHUB_OUTPUT
             echo "New version available: $LATEST (current: $CURRENT)"
@@ -86,30 +86,30 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: |
             chore: Update Fiduswriter to version ${{ steps.get-version.outputs.latest }}
-            
+
             Automatically detected new Fiduswriter version on PyPI.
           branch: update/fiduswriter-${{ steps.get-version.outputs.latest }}
           delete-branch: true
           title: 'chore: Update Fiduswriter to version ${{ steps.get-version.outputs.latest }}'
           body: |
             ## Automated Fiduswriter Version Update
-            
+
             This PR updates Fiduswriter from version ${{ steps.current-version.outputs.current }} to ${{ steps.get-version.outputs.latest }}.
-            
+
             ### Changes
             - Updated `Dockerfile` to use Fiduswriter version ${{ steps.get-version.outputs.latest }}
-            
+
             ### Release Notes
             See the [Fiduswriter releases](https://github.com/fiduswriter/fiduswriter/releases) for details about what changed in this version.
-            
+
             ### Checklist
             - [ ] Review the Fiduswriter changelog
             - [ ] Test the Docker image builds successfully
             - [ ] Test the application starts correctly
             - [ ] Verify no breaking changes affect the Docker setup
-            
+
             ---
-            
+
             🤖 This PR was created automatically by the version check workflow.
           labels: |
             automated

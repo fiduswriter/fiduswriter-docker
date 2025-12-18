@@ -24,7 +24,7 @@ The script will guide you through the entire setup process.
 
 ### Step 2: Access Fiduswriter
 
-Open your browser to: **http://localhost:8000**
+Open your browser to: **<http://localhost:8000>**
 
 ## Manual Setup
 
@@ -97,7 +97,7 @@ make help
 
 ## Next Steps
 
-1. **Configure site**: Go to http://localhost:8000/admin/sites/site/
+1. **Configure site**: Go to <http://localhost:8000/admin/sites/site/>
 2. **Change domain**: Update from example.com to your domain
 3. **Set up email**: Edit `configuration.py` (optional)
 4. **Create backups**: Run `make backup` regularly
@@ -156,4 +156,4 @@ See [README.md](README.md) for detailed production setup instructions.
 
 ---
 
-**Happy writing! 📝**
+Happy writing! 📝

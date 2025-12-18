@@ -12,6 +12,7 @@ No unreleased changes.
 ## [4.0.17] - 2025-12-18
 
 ### Added
+
 - Pre-commit configuration for code quality checks
 - GitHub Actions CI/CD pipeline for automated testing and building
 - Automated version checking workflow to detect new Fiduswriter releases
@@ -20,11 +21,13 @@ No unreleased changes.
 - Comprehensive documentation
 
 ### Changed
+
 - Updated to Python 3.14.2 from deadsnakes PPA
 - Improved Dockerfile with build arguments support
 - Enhanced docker-compose.yml with version configuration
 
 ### Removed
+
 - IDE-specific files (.idea, .ropeproject)
 
 ## [4.0.16] - Previous Release

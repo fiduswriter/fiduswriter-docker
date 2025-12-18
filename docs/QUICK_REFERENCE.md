@@ -129,6 +129,7 @@ docker compose logs --tail=100      # Last 100 lines
 ## 🔧 Common Tasks
 
 ### Create Superuser
+
 ```bash
 make superuser
 # Or
@@ -136,6 +137,7 @@ docker compose exec fiduswriter venv/bin/fiduswriter createsuperuser
 ```
 
 ### Backup Data
+
 ```bash
 make backup
 # Or
@@ -143,6 +145,7 @@ tar -czf backup-$(date +%Y%m%d).tar.gz volumes/data
 ```
 
 ### Restore from Backup
+
 ```bash
 docker compose down
 rm -rf volumes/data/*
@@ -151,6 +154,7 @@ docker compose up -d
 ```
 
 ### View Logs
+
 ```bash
 make logs
 # Or
@@ -160,6 +164,7 @@ docker compose logs --since=1h
 ```
 
 ### Check Version
+
 ```bash
 make version
 # Or
@@ -168,6 +173,7 @@ docker compose exec fiduswriter python3 --version
 ```
 
 ### Update to Latest Version
+
 ```bash
 make down
 git pull
@@ -177,6 +183,7 @@ make migrate
 ```
 
 ### Reset Database (⚠️ Destroys data!)
+
 ```bash
 docker compose down -v
 rm volumes/data/fiduswriter.sql
@@ -185,6 +192,7 @@ make superuser
 ```
 
 ### Fix Permissions
+
 ```bash
 make setup-data
 # Or
@@ -193,6 +201,7 @@ sudo chmod -R 755 volumes/
 ```
 
 ### Access Container Shell
+
 ```bash
 make shell
 # Or
@@ -201,6 +210,7 @@ docker compose exec fiduswriter sh
 ```
 
 ### Run Python Shell
+
 ```bash
 docker compose exec fiduswriter venv/bin/python
 # Or Django shell
@@ -210,6 +220,7 @@ docker compose exec fiduswriter venv/bin/fiduswriter shell
 ## 🌐 Configuration Variables
 
 ### Environment Variables (.env)
+
 ```bash
 FIDUSWRITER_VERSION=4.0.17          # Fiduswriter version
 HOST_PORT=8000                      # Host port
@@ -218,11 +229,12 @@ TZ=UTC                              # Timezone
 ```
 
 ### Key Configuration Settings (configuration.py)
+
 ```python
 DEBUG = False                       # Debug mode
 ALLOWED_HOSTS = ['domain.com']     # Allowed hosts
 CONTACT_EMAIL = 'admin@domain.com' # Contact email
-SECRET_KEY = 'your-secret-key'     # Secret key
+SECRET_KEY = 'your-secret-key'     # pragma: allowlist secret
 CSRF_TRUSTED_ORIGINS = ['https://domain.com']  # CSRF origins
 
 # Database
@@ -231,7 +243,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'fiduswriter',
         'USER': 'fiduswriter',
-        'PASSWORD': 'password',
+        'PASSWORD': 'password',  # pragma: allowlist secret
         'HOST': 'db',
         'PORT': '5432',
     }
@@ -243,12 +255,13 @@ EMAIL_HOST = 'smtp.example.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'user@example.com'
-EMAIL_HOST_PASSWORD = 'password'
+EMAIL_HOST_PASSWORD = 'password'  # pragma: allowlist secret
 ```
 
 ## 🐛 Troubleshooting Quick Fixes
 
 ### Container Won't Start
+
 ```bash
 docker compose logs
 sudo chown -R 999:999 volumes/data
@@ -257,6 +270,7 @@ docker compose up -d
 ```
 
 ### Port Already in Use
+
 ```bash
 # Change port in .env
 echo "HOST_PORT=8080" >> .env
@@ -265,6 +279,7 @@ docker compose up -d
 ```
 
 ### Permission Denied
+
 ```bash
 sudo chown -R 999:999 volumes/
 sudo chmod -R 755 volumes/
@@ -272,6 +287,7 @@ docker compose restart
 ```
 
 ### Database Locked
+
 ```bash
 docker compose restart
 # Or
@@ -280,6 +296,7 @@ docker compose up -d
 ```
 
 ### Migrations Not Applied
+
 ```bash
 docker compose exec fiduswriter venv/bin/fiduswriter migrate
 # Or force
@@ -287,6 +304,7 @@ docker compose exec fiduswriter venv/bin/fiduswriter migrate --run-syncdb
 ```
 
 ### Clear Everything and Start Fresh
+
 ```bash
 make prune
 rm -rf volumes/data/*
@@ -299,6 +317,7 @@ make superuser
 ## 📊 Monitoring
 
 ### Check Container Status
+
 ```bash
 docker compose ps
 docker stats fiduswriter
@@ -306,6 +325,7 @@ docker inspect fiduswriter
 ```
 
 ### Check Disk Usage
+
 ```bash
 docker system df
 du -sh volumes/data
@@ -313,6 +333,7 @@ df -h
 ```
 
 ### Health Check
+
 ```bash
 docker compose exec fiduswriter venv/bin/fiduswriter check
 curl http://localhost:8000
@@ -321,12 +342,14 @@ curl http://localhost:8000
 ## 🔄 Update Workflow
 
 ### Check for Updates
+
 ```bash
 make check-update
 python3 scripts/check-version.py
 ```
 
 ### Update Process
+
 ```bash
 # 1. Backup
 make backup
@@ -386,41 +409,49 @@ cat UPGRADE_GUIDE.md
 ## 💡 Pro Tips
 
 1. **Always backup before making changes**
+
    ```bash
    make backup
    ```
 
 2. **Use `.env` for configuration**
+
    ```bash
    cp .env.example .env
    ```
 
 3. **Pin versions in production**
+
    ```bash
    FIDUSWRITER_VERSION=4.0.17
    ```
 
 4. **Monitor logs regularly**
+
    ```bash
    make logs
    ```
 
 5. **Keep system updated**
+
    ```bash
    make check-update
    ```
 
 6. **Use Makefile for consistency**
+
    ```bash
    make <command>
    ```
 
 7. **Test in staging first**
+
    ```bash
    # Copy setup to staging environment
    ```
 
 8. **Document customizations**
+
    ```bash
    # Keep notes of config changes
    ```
@@ -428,6 +459,7 @@ cat UPGRADE_GUIDE.md
 ---
 
 **Quick Links:**
+
 - [README](../README.md)
 - [Contributing](../CONTRIBUTING.md)
 - [Upgrade Guide](../UPGRADE_GUIDE.md)

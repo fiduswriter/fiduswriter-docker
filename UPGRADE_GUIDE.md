@@ -38,17 +38,20 @@ make logs
 ### Prerequisites
 
 1. **Backup your data**:
+
    ```bash
    make backup
    # Or: tar -czf backup-$(date +%Y%m%d).tar.gz volumes/data
    ```
 
 2. **Check disk space**:
+
    ```bash
    df -h volumes/data
    ```
 
 3. **Save configuration**:
+
    ```bash
    cp volumes/data/configuration.py volumes/data/configuration.py.backup
    ```
@@ -79,7 +82,7 @@ docker compose logs -f
 
 1. **Check container status**: `docker compose ps`
 2. **Verify Python version**: `docker compose exec fiduswriter python3 --version`
-3. **Test application**: Open http://localhost:8000 and verify functionality
+3. **Test application**: Open <http://localhost:8000> and verify functionality
 4. **Check logs**: `docker compose logs` for any errors
 
 ### Configuration

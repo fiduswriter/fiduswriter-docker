@@ -27,9 +27,9 @@ Related to #(issue)
 
 <!-- List the specific changes made in this PR -->
 
-- 
-- 
-- 
+-
+-
+-
 
 ## How Has This Been Tested?
 
@@ -45,9 +45,9 @@ Related to #(issue)
 
 ### Test Configuration
 
-- **Docker Version**: 
-- **Docker Compose Version**: 
-- **OS**: 
+- **Docker Version**:
+- **Docker Compose Version**:
+- **OS**:
 
 ## Screenshots (if applicable)
 

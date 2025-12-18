@@ -69,7 +69,7 @@ jobs:
           LATEST_VERSION="${{ steps.get-version.outputs.version }}"
           echo "Current version in Dockerfile: $CURRENT_VERSION"
           echo "Latest version on PyPI: $LATEST_VERSION"
-          
+
           if [ "$CURRENT_VERSION" != "$LATEST_VERSION" ] || [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ "${{ github.event_name }}" = "push" ]; then
             echo "should_build=true" >> $GITHUB_OUTPUT
             echo "Build should proceed"
@@ -121,7 +121,7 @@ jobs:
           fi
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Building version: $VERSION"
-          
+
           # Extract version components
           IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
           echo "major=$MAJOR" >> $GITHUB_OUTPUT
@@ -133,7 +133,7 @@ jobs:
         run: |
           VERSION="${{ steps.version.outputs.version }}"
           sed -i "s/ARG FIDUSWRITER_VERSION=.*/ARG FIDUSWRITER_VERSION=$VERSION/" Dockerfile
-          
+
           if git diff --quiet Dockerfile; then
             echo "No changes to Dockerfile"
           else
@@ -191,23 +191,23 @@ jobs:
           name: Fiduswriter ${{ steps.version.outputs.version }}
           body: |
             ## Fiduswriter Docker Image v${{ steps.version.outputs.version }}
-            
+
             This release contains the Docker image for Fiduswriter version ${{ steps.version.outputs.version }}.
-            
+
             ### Docker Images
-            
+
             ```bash
             docker pull fiduswriter/fiduswriter:${{ steps.version.outputs.version }}
             docker pull fiduswriter/fiduswriter:${{ steps.version.outputs.major }}.${{ steps.version.outputs.minor }}
             docker pull fiduswriter/fiduswriter:${{ steps.version.outputs.major }}
             docker pull fiduswriter/fiduswriter:latest
             ```
-            
+
             ### What's Changed
             - Updated Fiduswriter to version ${{ steps.version.outputs.version }}
             - Built with Python 3.14.2
             - Multi-architecture support (amd64, arm64)
-            
+
             See [Fiduswriter Changelog](https://github.com/fiduswriter/fiduswriter/releases) for application changes.
           draft: false
           prerelease: false
@@ -232,7 +232,7 @@ jobs:
         run: |
           # Start container
           docker run -d --name fiduswriter-test -p 8000:8000 fiduswriter-test
-          
+
           # Wait for startup (increased timeout)
           echo "Waiting for Fiduswriter to start..."
           for i in {1..30}; do
@@ -243,26 +243,26 @@ jobs:
             echo "Waiting... ($i/30)"
             sleep 2
           done
-          
+
           # Show logs
           echo "Container logs:"
           docker logs fiduswriter-test
-          
+
           # Check if container is still running
           if ! docker ps | grep -q fiduswriter-test; then
             echo "ERROR: Container stopped unexpectedly"
             docker logs fiduswriter-test
             exit 1
           fi
-          
+
           # Verify Python version
           echo "Checking Python version..."
           docker exec fiduswriter-test python3 --version
-          
+
           # Verify Fiduswriter version
           echo "Checking Fiduswriter version..."
           docker exec fiduswriter-test /fiduswriter/venv/bin/pip show fiduswriter
-          
+
           # Cleanup
           docker stop fiduswriter-test
           docker rm fiduswriter-test

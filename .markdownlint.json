@@ -26,8 +26,10 @@
     "front_matter_title": ""
   },
   "MD033": {
-    "allowed_elements": ["br", "img", "table", "thead", "tbody", "tr", "th", "td"]
+    "allowed_elements": ["br", "img", "table", "thead", "tbody", "tr", "th", "td", "details", "summary"]
   },
+  "MD036": false,
+  "MD040": false,
   "MD041": false,
   "no-hard-tabs": true,
   "whitespace": true

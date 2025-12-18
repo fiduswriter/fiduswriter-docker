@@ -94,6 +94,7 @@ If applicable, add screenshots to help explain your problem.
 ## Additional Context
 
 Add any other context about the problem here:
+
 - Did this work in a previous version?
 - Are you using any custom configuration?
 - Are you behind a proxy or using special networking setup?

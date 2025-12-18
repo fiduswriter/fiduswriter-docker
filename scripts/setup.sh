@@ -40,23 +40,23 @@ print_header() {
 # Check if required commands exist
 check_requirements() {
     print_header "Checking Requirements"
-    
-    local missing_requirements=0
-    
+
+    missing_requirements=0
+
     if ! command -v docker >/dev/null 2>&1; then
         print_error "Docker is not installed"
         missing_requirements=1
     else
         print_success "Docker is installed: $(docker --version)"
     fi
-    
+
     if ! command -v docker >/dev/null 2>&1 || ! docker compose version >/dev/null 2>&1; then
         print_error "Docker Compose is not installed or not available"
         missing_requirements=1
     else
         print_success "Docker Compose is available: $(docker compose version)"
     fi
-    
+
     if [ $missing_requirements -eq 1 ]; then
         print_error "Please install missing requirements before continuing"
         exit 1
@@ -66,7 +66,7 @@ check_requirements() {
 # Set up data directory with correct permissions
 setup_data_directory() {
     print_header "Setting Up Data Directory"
-    
+
     if [ ! -d "volumes/data" ]; then
         print_info "Creating data directory..."
         mkdir -p volumes/data volumes/data/media
@@ -74,9 +74,9 @@ setup_data_directory() {
     else
         print_info "Data directory already exists"
     fi
-    
+
     print_info "Setting correct permissions (user:group 999:999)..."
-    
+
     # Check if we need sudo
     if [ -w "volumes" ]; then
         chown -R 999:999 volumes/ 2>/dev/null || {
@@ -88,19 +88,19 @@ setup_data_directory() {
         sudo chown -R 999:999 volumes/
         sudo chmod -R 755 volumes/
     fi
-    
+
     print_success "Permissions set correctly"
 }
 
 # Create environment file
 setup_environment() {
     print_header "Setting Up Environment"
-    
+
     if [ -f ".env" ]; then
         print_warning ".env file already exists, skipping creation"
         return
     fi
-    
+
     if [ -f ".env.example" ]; then
         print_info "Creating .env file from .env.example..."
         cp .env.example .env
@@ -114,9 +114,9 @@ setup_environment() {
 # Build Docker image
 build_image() {
     print_header "Building Docker Image"
-    
+
     print_info "This may take several minutes on first run..."
-    
+
     if docker compose build; then
         print_success "Docker image built successfully"
     else
@@ -128,14 +128,14 @@ build_image() {
 # Start containers
 start_containers() {
     print_header "Starting Containers"
-    
+
     if docker compose up -d; then
         print_success "Containers started successfully"
     else
         print_error "Failed to start containers"
         exit 1
     fi
-    
+
     print_info "Waiting for Fiduswriter to initialize..."
     sleep 5
 }
@@ -143,7 +143,7 @@ start_containers() {
 # Check container status
 check_status() {
     print_header "Checking Container Status"
-    
+
     if docker compose ps | grep -q "fiduswriter.*Up"; then
         print_success "Fiduswriter container is running"
     else
@@ -157,11 +157,11 @@ check_status() {
 # Prompt for superuser creation
 create_superuser() {
     print_header "Create Superuser Account"
-    
+
     print_info "You need to create a superuser account to access the admin panel"
     printf "Would you like to create a superuser now? (y/n): "
     read -r response
-    
+
     if [ "$response" = "y" ] || [ "$response" = "Y" ]; then
         print_info "Creating superuser..."
         docker compose exec fiduswriter venv/bin/fiduswriter createsuperuser
@@ -177,7 +177,7 @@ create_superuser() {
 # Display completion message
 show_completion_message() {
     print_header "Setup Complete!"
-    
+
     print_success "Fiduswriter is now running!"
     echo ""
     print_info "Access Fiduswriter at: http://localhost:8000"
@@ -209,21 +209,21 @@ show_completion_message() {
 # Main setup flow
 main() {
     clear
-    
+
     cat << "EOF"
-    _____ _     _         _    _      _ _            
-   |  ___(_) __| |_   _ _| |  | |_ __(_) |_ ___ _ __ 
+    _____ _     _         _    _      _ _
+   |  ___(_) __| |_   _ _| |  | |_ __(_) |_ ___ _ __
    | |_  | |/ _` | | | / __| | __/ _ \ | __/ _ \ '__|
-   |  _| | | (_| | |_| \__ \ | ||  __/ | ||  __/ |   
-   |_|   |_|\__,_|\__,_|___/  \__\___|_|\__\___|_|   
-                                                      
+   |  _| | | (_| | |_| \__ \ | ||  __/ | ||  __/ |
+   |_|   |_|\__,_|\__,_|___/  \__\___|_|\__\___|_|
+
               Docker Quick Setup
 EOF
-    
+
     echo ""
     print_info "This script will help you set up Fiduswriter Docker"
     echo ""
-    
+
     # Check if already running
     if docker compose ps 2>/dev/null | grep -q "fiduswriter.*Up"; then
         print_warning "Fiduswriter is already running!"
@@ -234,14 +234,14 @@ EOF
             exit 0
         fi
     fi
-    
+
     check_requirements
     setup_data_directory
     setup_environment
     build_image
     start_containers
     check_status
-    
+
     echo ""
     create_superuser
     echo ""

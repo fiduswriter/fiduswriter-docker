@@ -1,6 +1,7 @@
 # Contributing to Fiduswriter Docker
 
-Thank you for your interest in contributing to the Fiduswriter Docker project! This document provides guidelines and instructions for contributing.
+Thank you for your interest in contributing to the Fiduswriter Docker project! This document
+provides guidelines and instructions for contributing.
 
 ## Table of Contents
 
@@ -15,17 +16,21 @@ Thank you for your interest in contributing to the Fiduswriter Docker project! T
 
 ## Code of Conduct
 
-This project follows the [Fiduswriter Code of Conduct](https://github.com/fiduswriter/fiduswriter/blob/main/CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code.
+This project follows the [Fiduswriter Code of Conduct](https://github.com/fiduswriter/fiduswriter/blob/main/CODE_OF_CONDUCT.md).
+By participating, you are expected to uphold this code.
 
 ## Getting Started
 
 1. **Fork the repository** on GitHub
 2. **Clone your fork** locally:
+
    ```bash
    git clone https://github.com/YOUR-USERNAME/fiduswriter-docker.git
    cd fiduswriter-docker
    ```
+
 3. **Add upstream remote**:
+
    ```bash
    git remote add upstream https://github.com/fiduswriter/fiduswriter-docker.git
    ```
@@ -98,6 +103,7 @@ Use descriptive branch names:
 - `chore/description` - Maintenance tasks
 
 Example:
+
 ```bash
 git checkout -b feature/add-postgresql-support
 ```
@@ -115,6 +121,7 @@ Follow the [Conventional Commits](https://www.conventionalcommits.org/) specific
 ```
 
 Types:
+
 - `feat`: New feature
 - `fix`: Bug fix
 - `docs`: Documentation changes
@@ -125,6 +132,7 @@ Types:
 - `ci`: CI/CD changes
 
 Examples:
+
 ```
 feat(docker): add support for PostgreSQL database
 
@@ -211,12 +219,14 @@ docker compose down
 ### Before Submitting
 
 1. **Run all tests and linters**:
+
    ```bash
    make lint
    make test
    ```
 
 2. **Test your changes locally**:
+
    ```bash
    make clean
    make build
@@ -232,6 +242,7 @@ docker compose down
 4. **Commit your changes** with clear messages
 
 5. **Push to your fork**:
+
    ```bash
    git push origin feature/your-feature-name
    ```
@@ -302,6 +313,7 @@ Related to #456
 - Use hadolint to check for issues
 
 Example:
+
 ```dockerfile
 # Install Python dependencies
 RUN apt-get update \
@@ -321,6 +333,7 @@ RUN apt-get update \
 - Use shellcheck to verify
 
 Example:
+
 ```bash
 #!/bin/sh -e
 
@@ -397,7 +410,9 @@ What actually happened.
 
 **Logs**
 ```
+
 Paste relevant logs here
+
 ```
 
 **Additional context**
@@ -422,6 +437,7 @@ We welcome feature requests! Please provide:
 ## Recognition
 
 Contributors will be:
+
 - Listed in release notes
 - Credited in the repository
 - Appreciated by the community! 🎉

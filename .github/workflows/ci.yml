@@ -72,16 +72,16 @@ jobs:
         run: |
           docker build --build-arg FIDUSWRITER_VERSION=${{ matrix.version }} -t fiduswriter-test:${{ matrix.version }} .
           docker run -d --name fiduswriter-test -p 8000:8000 fiduswriter-test:${{ matrix.version }}
-          
+
           # Wait for container to start
           sleep 10
-          
+
           # Check if container is running
           docker ps | grep fiduswriter-test
-          
+
           # Check logs for errors
           docker logs fiduswriter-test
-          
+
           # Cleanup
           docker stop fiduswriter-test
           docker rm fiduswriter-test
