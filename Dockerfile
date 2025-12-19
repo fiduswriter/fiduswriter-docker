@@ -4,15 +4,15 @@ EXPOSE 8000
 
 # Use build arg to allow overriding version
 ARG FIDUSWRITER_VERSION=4.0.17
-ENV VERSION ${FIDUSWRITER_VERSION}
+ENV VERSION=${FIDUSWRITER_VERSION}
 
 # Executing group, with fixed group id
-ENV EXECUTING_GROUP fiduswriter
-ENV EXECUTING_GROUP_ID 999
+ENV EXECUTING_GROUP=fiduswriter
+ENV EXECUTING_GROUP_ID=999
 
 # Executing user, with fixed user id
-ENV EXECUTING_USER fiduswriter
-ENV EXECUTING_USER_ID 999
+ENV EXECUTING_USER=fiduswriter
+ENV EXECUTING_USER_ID=999
 
 # Data volume, should be owned by 999:999 to ensure the application can
 # function correctly. Run `chown 999:999 <data-dir-path>` on the host OS to
