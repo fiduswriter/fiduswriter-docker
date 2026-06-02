@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Check for the latest Fiduswriter version in the 4.0.x series from PyPI.
+Check for the latest Fiduswriter version in the 4.1.x series from PyPI.
 
-This script queries the PyPI JSON API to find the latest version in the 4.0.x
+This script queries the PyPI JSON API to find the latest version in the 4.1.x
 series and compares it with the current version in the Dockerfile.
 """
 
@@ -142,8 +142,8 @@ def main():
     )
     parser.add_argument(
         "--series",
-        default="4.0",
-        help="Version series to check (default: 4.0)"
+        default="4.1",
+        help="Version series to check (default: 4.1)"
     )
     parser.add_argument(
         "--dockerfile",

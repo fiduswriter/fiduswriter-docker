@@ -44,9 +44,6 @@ TEST_SERVER = True
 # This is the contact email that will be shown in various places all over
 # the site.
 CONTACT_EMAIL = "mail@email.com"
-# If websockets is running on a non-standard port, add it here:
-WS_PORT = False
-
 ADMINS = (("Your Name", "your_email@example.com"),)
 
 # Whether anyone surfing to the site can open an account with a login/password.
@@ -100,6 +97,11 @@ ALLOWED_HOSTS = [
 
 PORTS = [8000]
 
+# ProseMirror backend used by the document WebSocket consumer.
+# "python" - pure-Python prosemirror package (default).
+# "rust"   - prosemirror-rs Rust extension (requires `pip install prosemirror-rs`). EXPERIMENTAL
+# PROSEMIRROR_BACKEND = "python"
+
 # Allow the server to listen to all network interfaces (0.0.0.0) instead of just localhost
 # SECURITY WARNING: Setting this to True in production environments could expose your server
 LISTEN_TO_ALL_INTERFACES = False
@@ -109,6 +111,29 @@ USE_SERVICE_WORKER = True
 
 # The maximum size of user uploaded images in bytes.
 MEDIA_MAX_SIZE = 10 * 1024 * 1024  # 10 MB
+
+# E2EE_MODE controls whether end-to-end encrypted documents are allowed.
+# EXPERIMENTAL: E2EE_MODE is an experimental mode that is still subject to changes
+# and that has not been independently reviewed by security experts yet.
+#
+# 'disabled'  - No E2EE support. All documents are unencrypted.
+# 'enabled'   - Both E2EE and non-encrypted documents are supported. EXPERIMENTAL
+# 'required'  - Only E2EE documents are allowed. EXPERIMENTAL
+# E2EE_MODE = "disabled"
+
+# EDITOR_SAVE_MODE controls how the editor persists document changes.
+#   "collaborative" - WebSocket-based real-time collaboration (default).
+#   "direct"        - Periodic REST saves without real-time collaboration.
+#   "external"      - No built-in saving; external plugins handle persistence.
+# EDITOR_SAVE_MODE = "collaborative"
+
+# A list of apps to remove from the default installation
+# REMOVED_APPS = [
+#     # Example: Disable two-factor authentication entirely
+#     # 'django_otp',
+#     # Example: Disable brute-force protection (for development only)
+#     # 'axes',
+# ]
 
 # Don't share the SECRET_KEY with anyone.
 SECRET_KEY = '5vx9556(@55hv4z(4o)-urkb8a1cq+cg86a$49g%vsm2pt+n+z' # pragma: allowlist secret

@@ -3,7 +3,7 @@ services:
     build:
       context: .
       args:
-        FIDUSWRITER_VERSION: ${FIDUSWRITER_VERSION:-4.0.17}
+        FIDUSWRITER_VERSION: ${FIDUSWRITER_VERSION:-4.1.2}
     volumes:
     - ./volumes/data:/data
     ports:
@@ -12,4 +12,4 @@ services:
     restart: unless-stopped
     user: 999:999    # Ensure we're running as the correct user
     environment:
-    - FIDUSWRITER_VERSION=${FIDUSWRITER_VERSION:-4.0.17}
+    - FIDUSWRITER_VERSION=${FIDUSWRITER_VERSION:-4.1.2}
