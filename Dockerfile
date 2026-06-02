@@ -3,7 +3,7 @@ FROM ubuntu:24.04
 EXPOSE 8000
 
 # Use build arg to allow overriding version
-ARG FIDUSWRITER_VERSION=4.1.2
+ARG FIDUSWRITER_VERSION=4.0.19
 ENV VERSION=${FIDUSWRITER_VERSION}
 
 # Executing group, with fixed group id
