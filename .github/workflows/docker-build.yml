@@ -12,11 +12,11 @@ on:
   workflow_dispatch:
     inputs:
       fiduswriter_version:
-        description: 'Fiduswriter version to build (e.g., 4.0.17)'
+        description: 'Fiduswriter version to build (e.g., 4.1.2)'
         required: false
-        default: '4.0.17'
+        default: '4.1.2'
   schedule:
-    # Check for new 4.0.x releases weekly (Sunday at 2 AM UTC)
+    # Check for new 4.1.x releases weekly (Sunday at 2 AM UTC)
     - cron: '0 2 * * 0'
 
 jobs:
@@ -35,10 +35,10 @@ jobs:
         with:
           python-version: '3.14'
 
-      - name: Get latest 4.0.x version from PyPI
+      - name: Get latest 4.1.x version from PyPI
         id: get-version
         run: |
-          # Get latest version in 4.0.x series from PyPI
+          # Get latest version in 4.1.x series from PyPI
           LATEST=$(python3 << 'EOF'
           import json
           import urllib.request
@@ -48,24 +48,24 @@ jobs:
           with urllib.request.urlopen(url) as response:
               data = json.loads(response.read())
               versions = list(data['releases'].keys())
-              # Filter for 4.0.x versions
-              pattern = re.compile(r'^4\.0\.\d+$')
-              v40_versions = [v for v in versions if pattern.match(v)]
+              # Filter for 4.1.x versions
+              pattern = re.compile(r'^4\.1\.\d+$')
+              v41_versions = [v for v in versions if pattern.match(v)]
               # Sort by version number
-              v40_versions.sort(key=lambda s: [int(u) for u in s.split('.')])
-              if v40_versions:
-                  print(v40_versions[-1])
+              v41_versions.sort(key=lambda s: [int(u) for u in s.split('.')])
+              if v41_versions:
+                  print(v41_versions[-1])
               else:
-                  print("4.0.17")
+                  print("4.1.2")
           EOF
           )
           echo "version=$LATEST" >> $GITHUB_OUTPUT
-          echo "Latest 4.0.x version: $LATEST"
+          echo "Latest 4.1.x version: $LATEST"
 
       - name: Compare with current version
         id: compare
         run: |
-          CURRENT_VERSION=$(grep -oP 'ARG FIDUSWRITER_VERSION=\K[0-9.]+' Dockerfile || echo "4.0.16")
+          CURRENT_VERSION=$(grep -oP 'ARG FIDUSWRITER_VERSION=\K[0-9.]+' Dockerfile || echo "4.1.2")
           LATEST_VERSION="${{ steps.get-version.outputs.version }}"
           echo "Current version in Dockerfile: $CURRENT_VERSION"
           echo "Latest version on PyPI: $LATEST_VERSION"
