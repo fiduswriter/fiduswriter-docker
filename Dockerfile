@@ -65,8 +65,8 @@ RUN add-apt-repository ppa:deadsnakes/ppa -y \
 RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.14 1 \
     && update-alternatives --set python3 /usr/bin/python3.14
 
-# Install Node.js 22.x
-RUN curl -sL https://deb.nodesource.com/setup_22.x | bash \
+# Install Node.js 24.x
+RUN curl -sL https://deb.nodesource.com/setup_24.x | bash \
     && apt-get update \
     && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/*
