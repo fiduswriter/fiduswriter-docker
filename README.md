@@ -1,3 +1,5 @@
+**Archived: The main Fidus Writer repository now includes a docker folder that replaces this repository.**
+
 # docker-fiduswriter
 
 ![GitHub tag (with filter)](https://img.shields.io/github/v/tag/fiduswriter/fiduswriter)
